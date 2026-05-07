@@ -13,39 +13,45 @@
 
 ### 前置要求
 
-1. 确保 Docker Desktop 已安装并启动
-2. 如果需要 GPU 加速，请确保已安装 NVIDIA Container Toolkit
+1. 确保已安装 JDK 17 及以上版本
+2. 确保已安装 Node.js (推荐 v20) 和 npm
+3. 确保已安装并启动 MySQL 8.0
+4. 确保已安装 Ollama
 
-### 启动步骤
+### 本地启动步骤
 
+#### 1. 启动数据库与 AI 模型
+
+请先创建数据库并导入初始数据：
 ```bash
-# 1. 进入项目目录
-cd ai-chat-system
-
-# 2. 启动所有服务
-docker compose up -d --build
-
-# 3. 等待服务启动完成（首次启动需要下载镜像和构建，约需 5-10 分钟）
-
-# 4. 下载 DeepSeek 模型（首次运行需要）
-docker exec -it works-529-ollama-1 ollama pull deepseek-r1:1.5b
+mysql -u root -p < init.sql
 ```
 
-### 验证服务
+启动 Ollama 并下载 DeepSeek 模型：
+```bash
+ollama run deepseek-r1:1.5b
+```
+
+#### 2. 启动后端 (Spring Boot)
 
 ```bash
-# 查看服务状态
-docker compose ps
+cd backend
+mvn spring-boot:run
+```
 
-# 查看日志
-docker compose logs -f
+#### 3. 启动前端 (Vue.js)
+
+```bash
+cd frontend
+npm install
+npm run dev
 ```
 
 ## 🔗 服务地址 (Services)
 
 | 服务         | 地址                             | 说明        |
 | ------------ | -------------------------------- | ----------- |
-| Frontend     | http://localhost:3000            | 前端界面    |
+| Frontend     | http://localhost:80              | 前端界面    |
 | Backend API  | http://localhost:8080            | 后端接口    |
 | Health Check | http://localhost:8080/api/health | 健康检查    |
 | MySQL        | localhost:3306                   | 数据库      |
@@ -80,49 +86,22 @@ conversations (id, title, user_id, created_at, updated_at)
 chat_messages (id, conversation_id, role, content, created_at)
 ```
 
-## 🐳 Docker 镜像源配置
-
-项目已配置以下镜像源加速：
-
-- **Maven**: 阿里云镜像 (maven.aliyun.com)
-- **npm**: 淘宝镜像 (registry.npmmirror.com)
-- **Docker**: 官方 Docker Hub 镜像
-
 ## 📁 项目结构
 
 ```
-529/
+repo/
 ├── backend/                 # Spring Boot 后端
 │   ├── src/main/java/      # Java 源码
 │   ├── src/main/resources/ # 配置文件
-│   ├── Dockerfile          # 后端镜像构建
 │   └── pom.xml             # Maven 依赖
 ├── frontend/               # Vue.js 前端
 │   ├── src/               # 前端源码
-│   ├── Dockerfile         # 前端镜像构建
 │   └── nginx.conf         # Nginx 配置
-├── docker-compose.yml     # 容器编排
 ├── init.sql               # 数据库初始化
 └── README.md              # 项目文档
 ```
 
 ## ⚠️ 注意事项
 
-1. **GPU 支持**: 如果没有 NVIDIA GPU，请在 `docker-compose.yml` 中移除 ollama 服务的 `deploy.resources` 配置
-2. **模型下载**: 首次运行需要手动拉取模型，命令：`docker exec -it ai-chat-ollama ollama pull deepseek-r1:1.5b`
-3. **端口冲突**: 确保 3000、8080、3306、11434 端口未被占用
-
-## 🔧 开发模式
-
-如需本地开发调试：
-
-```bash
-# 仅启动数据库和 Ollama
-docker compose up -d db ollama
-
-# 后端开发
-cd backend && mvn spring-boot:run
-
-# 前端开发
-cd frontend && npm install && npm run dev
-```
+1. **模型下载**: 首次运行需要手动拉取模型，命令：`ollama pull deepseek-r1:1.5b`
+2. **端口冲突**: 确保 80、8080、3306、11434 端口未被占用
