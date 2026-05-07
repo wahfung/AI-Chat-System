@@ -8,7 +8,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 @Configuration
 public class OllamaConfig {
 
-    @Value("${ollama.base-url:http://ollama:11434}")
+    @Value("${ollama.base-url:http://localhost:11434}")
     private String ollamaBaseUrl;
 
     @Bean

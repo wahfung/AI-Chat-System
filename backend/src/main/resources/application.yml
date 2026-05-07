@@ -32,7 +32,7 @@ spring:
       data-locations: classpath:data.sql
 
 ollama:
-  base-url: http://ollama:11434
+  base-url: http://localhost:11434
   model: deepseek-r1:1.5b
 
 logging:
